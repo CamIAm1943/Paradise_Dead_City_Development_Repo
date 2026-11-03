@@ -199,7 +199,7 @@ MeshRenderer:
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
-  m_DynamicOccludee: 1
+  m_DynamicOccludee: 0
   m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
@@ -256,6 +256,15 @@ MonoBehaviour:
   Type: 1
   Stats: {fileID: 0}
   Current_Health: 0
-  Has_Moved_This_Turn: 0
+  Movement_Remaining_This_Turn: 0
   Has_Attacked_This_Turn: 0
-  Movement_Lerp_Speed: 10
+  Has_Ended_Turn: 0
+  Movement_Before_Sprint: 0
+  Is_Sprinting_This_Turn: 0
+  Has_Moved_Since_Sprint: 0
+  Has_Used_Sprint_Bonus: 0
+  Ability: {fileID: 0}
+  Ability_Recharge_Remaining: 0
+  Move_Duration: 1
+  Follow_Speed: 15
+  Ease_Discrete_Moves: 1

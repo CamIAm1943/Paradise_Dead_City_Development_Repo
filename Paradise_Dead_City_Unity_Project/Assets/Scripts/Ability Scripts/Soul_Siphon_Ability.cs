@@ -16,8 +16,6 @@ public class Soul_Siphon_Ability : Ability_Definition_SO
         if (Model == null || Board == null) return false;
         if (Model.Ability_Recharge_Remaining > 0) return false;
 
-        // Both a HUSK and an eligible recipient must be in range, or the
-        // ability would open a targeting phase with no valid play.
         if (Find_Husk_Tiles_In_Range(Model, Board).Count == 0) return false;
         if (Find_Eligible_Ally_Tiles_In_Range(Model, Board).Count == 0) return false;
 
@@ -40,15 +38,10 @@ public class Soul_Siphon_Ability : Ability_Definition_SO
         if (Max <= 0) return;
 
         // ---- Phase 1: choose HUSKs to siphon. ----
-        // On confirm, chain into Phase 2 with the HUSK choice captured in
-        // the closure. Nothing is applied to the world until Phase 2
-        // confirms, so cancelling at any point is a true no-op.
-        Targeting.Begin(
-            Model,
-            Siphon_Range,
-            Husk_Tiles,
-            Max,
-            Husk_Chosen => Begin_Phase_2(Model, Board, Targeting, Husk_Chosen));
+        // Added 'null' for the On_Cancel_Callback parameter
+        Targeting.Begin(Model, Siphon_Range, Husk_Tiles, 1, Max,
+            Chosen_Tiles => Begin_Phase_2(Model, Board, Targeting, Chosen_Tiles),
+            null);
     }
 
     private void Begin_Phase_2(
@@ -63,13 +56,15 @@ public class Soul_Siphon_Ability : Ability_Definition_SO
         if (Ally_Tiles.Count == 0) return;
 
         // ---- Phase 2: choose allies to receive the buffs. ----
-        // Cap equals the HUSK count from Phase 1, so the pairing is 1:1.
+        // Added 'null' for the On_Cancel_Callback parameter
         Targeting.Begin(
             Model,
             Siphon_Range,
             Ally_Tiles,
             Husk_Chosen.Count,
-            Ally_Chosen => Resolve(Model, Board, Husk_Chosen, Ally_Chosen));
+            Husk_Chosen.Count,
+            Ally_Chosen => Resolve(Model, Board, Husk_Chosen, Ally_Chosen),
+            null);
     }
 
     private void Resolve(
@@ -78,10 +73,6 @@ public class Soul_Siphon_Ability : Ability_Definition_SO
         List<Vector2Int> Husk_Tiles,
         List<Vector2Int> Ally_Tiles)
     {
-        // Pair index i: HUSK i takes the damage, ally i gets the buff.
-        // Both lists come out of HashSet iteration in the targeting
-        // controller, so their order isn't guaranteed stable across runs
-        // — but the *pairing* is well-defined as "same index."
         int Pairs = Mathf.Min(Husk_Tiles.Count, Ally_Tiles.Count);
         if (Pairs == 0) return;
 
@@ -98,9 +89,7 @@ public class Soul_Siphon_Ability : Ability_Definition_SO
             {
                 bool Survived = Husk.Take_Damage(1);
                 Damaged++;
-
-                if (!Survived && Combat != null)
-                    Combat.Kill_Model(Husk);
+                if (!Survived && Combat != null) Combat.Kill_Model(Husk);
             }
 
             if (Ally != null)
@@ -111,29 +100,17 @@ public class Soul_Siphon_Ability : Ability_Definition_SO
         }
 
         Model.Ability_Recharge_Remaining = Mathf.Max(Recharge_Turns, 1);
-
         Debug.Log($"[Soul Siphon] Damaged {Damaged} HUSK(s), granted {Granted} Advantage(s).");
     }
 
-    // ============================================================
-    // QUERIES
-    // ============================================================
-
-    private List<Vector2Int> Find_Husk_Tiles_In_Range(
-        Model_Standard_Behavior Source,
-        Battle_Board_Behavior Board)
+    private List<Vector2Int> Find_Husk_Tiles_In_Range(Model_Standard_Behavior Source, Battle_Board_Behavior Board)
     {
         return Find_Tiles_In_Range(Source, Board, M => M.Type == Model_Type.Chaff);
     }
 
-    private List<Vector2Int> Find_Eligible_Ally_Tiles_In_Range(
-        Model_Standard_Behavior Source,
-        Battle_Board_Behavior Board)
+    private List<Vector2Int> Find_Eligible_Ally_Tiles_In_Range(Model_Standard_Behavior Source, Battle_Board_Behavior Board)
     {
-        // Allied non-HUSKs other than the Psychopomp itself.
-        return Find_Tiles_In_Range(
-            Source,
-            Board,
+        return Find_Tiles_In_Range(Source, Board,
             M => M.Team == Source.Team && M != Source && M.Type != Model_Type.Chaff);
     }
 

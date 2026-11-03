@@ -27,4 +27,4 @@ MonoBehaviour:
   Is_Ranged: 0
   Has_Splash_Damage: 0
   Reloads_After_Firing: 0
-  Ability_Data: {fileID: 0}
+  Ability_Data: {fileID: 11400000, guid: a9f573c0f24b4394ca7f3be4e9e4a828, type: 2}

@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a59fbf344381edc45994c84b4faf5934, type: 3}
+  m_Name: Logic Maze
+  m_EditorClassIdentifier: Assembly-CSharp::Logic_Maze_Ability
+  Status_Display: {fileID: 11400000, guid: 9e3da5479aa00b340bf7cec135a83331, type: 2}
+  Ability_Name: Logic Maze
+  Description: Select one enemy model within MOVEMENT range. That model now CANNOT
+    move anywhere but closer to the HYPERLINK MINOTAUR.
+  Kind: 2
+  Recharge_Turns: 3
+  Maze_Range: 4
+  Forced_Move_Distance: 2
