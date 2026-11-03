@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a3e110cf6dc4364794d5a51350efd4e, type: 3}
+  m_Name: Match_Config
+  m_EditorClassIdentifier: Assembly-CSharp::Match_Config_SO
+  Map: {fileID: 11400000, guid: 6bf79145ea697de4b8f0a6d552821d71, type: 2}
+  Mode: {fileID: 0}
+  Player_1_Faction: {fileID: 11400000, guid: 63668a7c46c18774faa37a5ee738e004, type: 2}
+  Player_2_Faction: {fileID: 11400000, guid: a4a2d948182e5f8478f31cea887187b6, type: 2}
+  Player_1_Army: {fileID: 11400000, guid: ae2f7e0eaaf0cd5489bd5efa6257055d, type: 2}
+  Player_2_Army: {fileID: 11400000, guid: 4c091bf673bf3ad4fb898c260fae9e24, type: 2}
+  Player_1_Team: 1
+  Player_2_Team: 2

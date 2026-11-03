@@ -27,10 +27,31 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 8088ea88a48e56b42bfa3c9b3391baed, type: 2}
   - {fileID: 2100000, guid: ec3ba1095a469b645a9d50b087209e65, type: 2}
   - {fileID: 2100000, guid: 7057e2516e46d5d499a59ceacb98b89f, type: 2}
-  Army_Composition: {fileID: 11400000, guid: ae2f7e0eaaf0cd5489bd5efa6257055d, type: 2}
-  Faction_Icon: {fileID: 21300000, guid: 2cc59094c96b8e640af3060ab57c4910, type: 3}
-  Chaff_Icon: {fileID: 21300000, guid: f43d31a319b0248469e0814819974016, type: 3}
-  Specialist_A_Icon: {fileID: 21300000, guid: 9b695e99b68e9614b88a65eaec99853c, type: 3}
-  Specialist_B_Icon: {fileID: 21300000, guid: f43d31a319b0248469e0814819974016, type: 3}
-  Axillary_Icon: {fileID: 21300000, guid: f43d31a319b0248469e0814819974016, type: 3}
-  Death_Head_Icon: {fileID: 21300000, guid: d0e37e00908b24345a6431d807657451, type: 3}
+  Army_Composition: {fileID: 11400000, guid: 874849e3a69b48c489bcceb65f2aefda, type: 2}
+  Faction_Icon: {fileID: 1257540627, guid: a13061faf24a0214185d67810698bf24, type: 3}
+  Model_Art:
+  - Type: 0
+    Initiative_Icon: {fileID: 21300000, guid: b87bd197cd825c1488f0d955c730b8cb, type: 3}
+    Stat_Card_Portrait: {fileID: 21300000, guid: f43d31a319b0248469e0814819974016, type: 3}
+    Army_Card_Portrait: {fileID: 21300000, guid: 5d0f5ae3273a05d4eb1a5fd2f6f0559f, type: 3}
+    Board_Sprite: {fileID: 21300000, guid: e06e0cb5f7ddfcf4ca262dfb3e61e076, type: 3}
+  - Type: 1
+    Initiative_Icon: {fileID: 21300000, guid: 7a1e09e5c2a9d91439e4b70e6ef78ea2, type: 3}
+    Stat_Card_Portrait: {fileID: 21300000, guid: 9b695e99b68e9614b88a65eaec99853c, type: 3}
+    Army_Card_Portrait: {fileID: 21300000, guid: 5d0f5ae3273a05d4eb1a5fd2f6f0559f, type: 3}
+    Board_Sprite: {fileID: 21300000, guid: c53c5e9718cd6aa4b9bc721cd0079dd2, type: 3}
+  - Type: 2
+    Initiative_Icon: {fileID: 21300000, guid: 8e36891c1cadb7c4e8284732c9038940, type: 3}
+    Stat_Card_Portrait: {fileID: 21300000, guid: f43d31a319b0248469e0814819974016, type: 3}
+    Army_Card_Portrait: {fileID: 21300000, guid: 5d0f5ae3273a05d4eb1a5fd2f6f0559f, type: 3}
+    Board_Sprite: {fileID: 21300000, guid: f4cfb4a14752ce24783e270f6edb49ea, type: 3}
+  - Type: 3
+    Initiative_Icon: {fileID: 21300000, guid: 3ed4885f5cb615f4c90606ae0ecab620, type: 3}
+    Stat_Card_Portrait: {fileID: 21300000, guid: f43d31a319b0248469e0814819974016, type: 3}
+    Army_Card_Portrait: {fileID: 21300000, guid: 5d0f5ae3273a05d4eb1a5fd2f6f0559f, type: 3}
+    Board_Sprite: {fileID: 21300000, guid: d33d10a3b5ecf1d4aa291ad67a2850fa, type: 3}
+  - Type: 4
+    Initiative_Icon: {fileID: 21300000, guid: 60b712f954e71d3458cda9a0a7b5d3a2, type: 3}
+    Stat_Card_Portrait: {fileID: 21300000, guid: d0e37e00908b24345a6431d807657451, type: 3}
+    Army_Card_Portrait: {fileID: 21300000, guid: 5d0f5ae3273a05d4eb1a5fd2f6f0559f, type: 3}
+    Board_Sprite: {fileID: 21300000, guid: a55f4ac184eb4274e913f85f2ca1aed3, type: 3}

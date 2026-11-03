@@ -9,6 +9,11 @@ ModelImporter:
       assembly: UnityEngine.CoreModule
       name: Demon_Color
     second: {fileID: 2100000, guid: 0a744d186111b7546a9ff642af39961f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Demon_S2_Icon
+    second: {fileID: 2100000, guid: 9acfbc9025d8273409a824f75d6abb41, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

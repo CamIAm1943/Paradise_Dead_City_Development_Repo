@@ -15,12 +15,16 @@ MonoBehaviour:
   Model_Name: Cyber Lich
   Type: 4
   Health: 9
+  Movement_Range: 3
   Armor_Saves: 1
   Armor_Target: 4
   Attack_Skill: 3
   Attack_Damage: 4
   Attack_Range: 1
-  Movement_Range: 3
+  Can_Shove: 1
+  Shove_Distance: 1
+  Sprint_Bonus: 2
   Is_Ranged: 0
   Has_Splash_Damage: 0
-  Has_Ability: 0
+  Reloads_After_Firing: 0
+  Ability_Data: {fileID: 11400000, guid: 3c2cef7d9fc04774d8fd53926602f55d, type: 2}

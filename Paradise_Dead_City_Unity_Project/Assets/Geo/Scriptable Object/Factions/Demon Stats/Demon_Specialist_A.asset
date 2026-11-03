@@ -15,10 +15,16 @@ MonoBehaviour:
   Model_Name: Ninja Headhunter
   Type: 1
   Health: 4
-  Attack_Damage: 2
-  Attack_Ranged: 1
-  Attack_Chance: 0.75
   Movement_Range: 3
+  Armor_Saves: 1
+  Armor_Target: 4
+  Attack_Skill: 3
+  Attack_Damage: 2
+  Attack_Range: 1
+  Can_Shove: 1
+  Shove_Distance: 1
+  Sprint_Bonus: 2
   Is_Ranged: 0
   Has_Splash_Damage: 0
-  Has_Ability: 0
+  Reloads_After_Firing: 0
+  Ability_Data: {fileID: 11400000, guid: df38a1a79c3ddff409bb20f1d42b55f2, type: 2}

@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b993ff507f0c3f447ab74c1abb2f0566, type: 3}
+  m_Name: Death On Wheels
+  m_EditorClassIdentifier: Assembly-CSharp::Death_On_Wheels_Ability
+  Status_Display: {fileID: 0}
+  Ability_Name: Death On Wheels
+  Description: Doubled movement, terrain destruction, and chain shoves are active
+    this turn.
+  Kind: 2
+  Recharge_Turns: 2
+  Movement_Multiplier: 2
+  Shove_Damage: 1
+  Shove_Push: 2

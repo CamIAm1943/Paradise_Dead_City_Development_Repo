@@ -100,6 +100,11 @@ GameObject:
   m_Component:
   - component: {fileID: 6060389736486774675}
   - component: {fileID: 1365854189067950064}
+  - component: {fileID: 6726961057283563761}
+  - component: {fileID: 5003415209739982725}
+  - component: {fileID: 4094446825897354117}
+  - component: {fileID: 7119934989124686591}
+  - component: {fileID: 7057925631755604999}
   m_Layer: 0
   m_Name: PDC_Battle_Board_PH_Prefab
   m_TagString: Untagged
@@ -135,37 +140,149 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44ce009663063be4885dfdc8bdd67920, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Chessboard
-  Tile_Material: {fileID: 2100000, guid: e8cd35783e2e32a498fbe38ad5fc5e4e, type: 2}
+  Tile_Material_A: {fileID: 2100000, guid: 8dca352e657881b49b30a758571c6d0d, type: 2}
+  Tile_Material_B: {fileID: 2100000, guid: 177a140700459e64c972e60d51d219ec, type: 2}
   Tile_Size: 2.4339
-  Y_Offset: 0.51
+  Y_Offset: 0.7
   Board_Center: {x: 0, y: 0, z: 0}
-  Card_UI: {fileID: 0}
-  Current_Map: {fileID: 11400000, guid: ce992d7ca3368964894a5280963a3543, type: 2}
+  Current_Map: {fileID: 11400000, guid: d43fa5ff34dd4f641b86fea9262261c8, type: 2}
   Cover_Tile_Prefab: {fileID: 5950313440568233867, guid: db9108c1cfa73be409f7a380137362c8, type: 3}
   Wall_Tile_Prefab: {fileID: 5950313440568233867, guid: 999ee9dba6bf1a94b9a6a96de8aa7c63, type: 3}
   Terrain_Tile_Prefab: {fileID: 5950313440568233867, guid: 31275e1bdfc3b9d46ade27e0a8dd7a6c, type: 3}
   Hazard_Tile_Prefab: {fileID: 5950313440568233867, guid: a74908b6a58cd5442a913dd4fedf60db, type: 3}
-  Terrain_Tile_Y_Offset: 0.1
-  Normal_Drag_Offset: 0.5
-  Altered_Drag_Offset: 4
-  Drag_Detect_Radius: 2
-  Drag_Hold_Time: 0.1
-  Player_1_Faction: {fileID: 11400000, guid: 63668a7c46c18774faa37a5ee738e004, type: 2}
-  Player_2_Faction: {fileID: 11400000, guid: a4a2d948182e5f8478f31cea887187b6, type: 2}
-  Spawn_Zone_Width: 5
-  Spawn_Zone_Depth: 2
+  Elevation_Unit_Height: 0
+  Status_Registry: {fileID: 11400000, guid: f9e648fcc42316d48aa5bc3ed122db53, type: 2}
+  Match_Flow_Ref: {fileID: 0}
+  Combat_Ref: {fileID: 0}
+  Ability_Targeting_Ref: {fileID: 0}
+  Movement_Engine_Ref: {fileID: 7119934989124686591}
+  Interaction_Handler_Ref: {fileID: 7057925631755604999}
+  Highlighter_Ref: {fileID: 5003415209739982725}
+  Pathfinder_Ref: {fileID: 6726961057283563761}
+  Deployment_Ref: {fileID: 4094446825897354117}
+--- !u!114 &6726961057283563761
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7068030445672354757}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23c14c793b669b54c91c68d11a0e9991, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Board_Pathfinder
+  Board: {fileID: 1365854189067950064}
+  Max_Shove_Paths_Shown: 8
+  Show_Alternate_Routes_Per_Direction: 1
+  Prefer_Hazard_Free_Routes: 1
+  Debug_Log_Pathfinding: 0
+--- !u!114 &5003415209739982725
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7068030445672354757}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39e16dbc3c48f9340acca2fd4510a072, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Board_Highlight_Renderer
+  Board: {fileID: 1365854189067950064}
+  Pathfinder: {fileID: 6726961057283563761}
+  Movement_Range_Material: {fileID: 2100000, guid: b483d9de372e65247ba333d1389eab84, type: 2}
+  Sprint_Range_Material: {fileID: 2100000, guid: 4fb800698383e5a4c93e5591dfccb19d, type: 2}
+  Shove_Target_Material: {fileID: 2100000, guid: 046997f5cc459b5479906f152fbf268a, type: 2}
+  Shove_Destination_Material: {fileID: 2100000, guid: c0bbb4494c3b0c44792b02b8cdf01c7b, type: 2}
+  Shove_Blocked_Material: {fileID: 2100000, guid: 7e304cac097740e4f95e4f602f03ce52, type: 2}
+  Hazard_Path_Material: {fileID: 2100000, guid: fba4b9d32bdf68d479bf86a2e93adc14, type: 2}
+  Death_On_Wheels_Destroy_Material: {fileID: 2100000, guid: b87c1d4716b7a3e428ab9bc0b95ab6e7, type: 2}
+  Death_On_Wheels_Shove_Preview_Material: {fileID: 2100000, guid: c0bbb4494c3b0c44792b02b8cdf01c7b, type: 2}
   Valid_Spawn_Tile_Locations_Material: {fileID: 2100000, guid: 8e76fe92388c7c14f921513316c00bf6, type: 2}
   Model_Placement_Material: {fileID: 2100000, guid: 4fb800698383e5a4c93e5591dfccb19d, type: 2}
-  Movement_Range_Material: {fileID: 2100000, guid: b483d9de372e65247ba333d1389eab84, type: 2}
-  Primary_Path_Material: {fileID: 2100000, guid: 617b756f418fb5244914ba87d7ab0ec2, type: 2}
-  Secondary_Path_Material: {fileID: 2100000, guid: 046997f5cc459b5479906f152fbf268a, type: 2}
-  Tertiary_Path_Material: {fileID: 2100000, guid: c8dc11d6e79547d4b8bc6b0152f4415b, type: 2}
-  Quaternary_Path_Material: {fileID: 2100000, guid: 600a776ecc92c634694907b829a2e80a, type: 2}
-  Hazard_Path_Material: {fileID: 2100000, guid: fba4b9d32bdf68d479bf86a2e93adc14, type: 2}
-  Flash_Speed: 3
-  Flash_Min_Alpha: 0.3
-  Flash_Max_Alpha: 0.5
+  Tile_Material_Fallback: {fileID: 2100000, guid: b483d9de372e65247ba333d1389eab84, type: 2}
+  Path_Materials:
+  - {fileID: 2100000, guid: 617b756f418fb5244914ba87d7ab0ec2, type: 2}
+  - {fileID: 2100000, guid: 046997f5cc459b5479906f152fbf268a, type: 2}
+  - {fileID: 2100000, guid: c8dc11d6e79547d4b8bc6b0152f4415b, type: 2}
+  - {fileID: 2100000, guid: 600a776ecc92c634694907b829a2e80a, type: 2}
+  - {fileID: 2100000, guid: 65c58a7755101af49937378db6b25afb, type: 2}
+  - {fileID: 2100000, guid: 601a2ee56c7984143ba629eec36721f6, type: 2}
+  Path_Slot_Count: 4
+  Flash_Speed: 2
+  Flash_Min_Alpha: 0.4
+  Flash_Max_Alpha: 0.7
+  Debug_Log_Pathfinding: 0
+  Debug_Log_Path_Materials: 0
+--- !u!114 &4094446825897354117
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7068030445672354757}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa0f887114193764694951097526d468, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Deployment_Manager
+  Board: {fileID: 1365854189067950064}
+  MatchFlow: {fileID: 0}
+  Highlighter: {fileID: 5003415209739982725}
+  Army_UI: {fileID: 0}
+  Initiative_UI: {fileID: 0}
+  Board_Move_Duration: 0.2
+  Player_1_Spawn_Zone: []
+  Player_2_Spawn_Zone: []
+  Placement_Reach_X: 1
+  Placement_Reach_Y: 2
+  Spawn_Tile_Prefab: {fileID: 5950313440568233867, guid: 71b87612891c2c941a0a40738ceeae7a, type: 3}
+--- !u!114 &7119934989124686591
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7068030445672354757}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9a81ace8b394aa48940ed6eb54a4b91, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Movement_Execution_Engine
+  Board: {fileID: 1365854189067950064}
+  MatchFlow: {fileID: 0}
+  Highlighter: {fileID: 5003415209739982725}
+  CombatManager: {fileID: 0}
+  Default_Impact_Damage: 1
+--- !u!114 &7057925631755604999
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7068030445672354757}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad59fa6d56667ae49900b3a1f32c13a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Gameplay_Interaction_Handler
+  Board: {fileID: 1365854189067950064}
+  MatchFlow: {fileID: 0}
+  MovementEngine: {fileID: 7119934989124686591}
+  CombatManager: {fileID: 0}
+  AbilityTargeting: {fileID: 0}
+  Highlighter: {fileID: 5003415209739982725}
+  Pathfinder: {fileID: 6726961057283563761}
+  CardUI: {fileID: 0}
   InputActions: {fileID: -944628639613478452, guid: 4a6743d916687234fbaab43d6a68bd8b, type: 3}
+  Raycast_Max_Distance: 100
+  ClickableLayers:
+    serializedVersion: 2
+    m_Bits: 1
+  Normal_Drag_Offset: 0.5
+  Drag_Hold_Time: 0.2
+  UI_Block_Duration: 0.1
 --- !u!1 &8267950992274266666
 GameObject:
   m_ObjectHideFlags: 0
@@ -226,7 +343,7 @@ Transform:
   m_GameObject: {fileID: 9107568867329399181}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0, y: 0, z: 0}
+  m_LocalPosition: {x: -0, y: 0.192, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

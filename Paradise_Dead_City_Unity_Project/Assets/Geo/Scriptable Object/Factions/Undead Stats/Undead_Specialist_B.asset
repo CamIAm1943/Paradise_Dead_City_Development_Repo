@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c84f65ce1f26f9d41b3565fda15b0e6d, type: 3}
+  m_Name: Undead_Specialist_B
+  m_EditorClassIdentifier: Assembly-CSharp::Model_Stats_SO
+  Model_Name: Mortar Gunner
+  Type: 2
+  Health: 4
+  Movement_Range: 2
+  Armor_Saves: 1
+  Armor_Target: 4
+  Attack_Skill: 3
+  Attack_Damage: 3
+  Attack_Range: 6
+  Can_Shove: 1
+  Shove_Distance: 1
+  Sprint_Bonus: 2
+  Is_Ranged: 1
+  Has_Splash_Damage: 0
+  Reloads_After_Firing: 1
+  Ability_Data: {fileID: 11400000, guid: ce2831c738389c94782c9188a3ad4fdb, type: 2}

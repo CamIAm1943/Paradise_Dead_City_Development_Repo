@@ -44,6 +44,7 @@ public class Model_Stats_SO : ScriptableObject
     [Tooltip("Range in tiles (1 for melee, 2+ for ranged/large models).")]
     [Range(1, 8)] public int Attack_Range = 1;
 
+
     // ============================================================
     // SHOVE RULES
     // ============================================================
@@ -54,6 +55,7 @@ public class Model_Stats_SO : ScriptableObject
 
     [Tooltip("How many tiles this model pushes an enemy when it shoves.")]
     [Range(0, 4)] public int Shove_Distance = 1;
+
 
     // ============================================================
     // MOVEMENT RULES
@@ -72,16 +74,29 @@ public class Model_Stats_SO : ScriptableObject
     public bool Is_Ranged = false;
     public bool Has_Splash_Damage = false;
 
+    [Tooltip("If true, making a ranged attack applies Vulnerable to this " +
+             "model, regardless of hit or miss. Ticks off at the start of " +
+             "the owner's next turn.")]
+    public bool Reloads_After_Firing = false;
+
 
     // ============================================================
     // SPECIAL ABILITIES
     // ============================================================
 
     [Header("Model Special Abilities")]
-    // Placeholder flag for a future ability system. Currently only
-    // used by the card UI to decide whether to show the "Special
-    // Ability" description line.
-    public bool Has_Ability = false;
+    [Tooltip("The ability this model uses. Null means the unit has no " +
+             "ability. The asset's Kind determines whether the card shows " +
+             "an Ability button (Active) or just describes it (Passive).")]
+    public Ability_Definition_SO Ability_Data;
+
+    /// <summary>
+    /// Convenience accessor. Returns None when no ability is assigned.
+    /// </summary>
+    public Ability_Kind Get_Ability_Kind()
+    {
+        return Ability_Data != null ? Ability_Data.Kind : Ability_Kind.None;
+    }
 
 
     // ============================================================
@@ -89,9 +104,9 @@ public class Model_Stats_SO : ScriptableObject
     // ============================================================
 
     /// <summary>
-    /// Maximum tiles a model can cover in a single sprint, regardless of base movement + bonus.
+    /// Maximum tiles a model can cover in a single sprint, regardless of
+    /// base movement + bonus.
     /// </summary>
-
     public const int Sprint_Range_Cap = 6;
 
     public int Get_Sprint_Range()

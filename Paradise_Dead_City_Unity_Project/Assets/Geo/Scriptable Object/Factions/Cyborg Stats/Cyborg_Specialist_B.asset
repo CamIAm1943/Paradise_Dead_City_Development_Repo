@@ -15,10 +15,16 @@ MonoBehaviour:
   Model_Name: 'Metal Specter '
   Type: 2
   Health: 5
-  Attack_Damage: 3
-  Attack_Ranged: 1
-  Attack_Chance: 0.75
   Movement_Range: 3
+  Armor_Saves: 1
+  Armor_Target: 4
+  Attack_Skill: 3
+  Attack_Damage: 3
+  Attack_Range: 1
+  Can_Shove: 1
+  Shove_Distance: 1
+  Sprint_Bonus: 2
   Is_Ranged: 0
   Has_Splash_Damage: 0
-  Has_Ability: 0
+  Reloads_After_Firing: 0
+  Ability_Data: {fileID: 11400000, guid: 5bfad2870f78c8048b53a330c6c08250, type: 2}

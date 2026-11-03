@@ -7,6 +7,11 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: Cyborg_AX_Icon
+    second: {fileID: 2100000, guid: a704aa2cadfb000418560002fabc7b34, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: Cyborg_Color
     second: {fileID: 2100000, guid: 8088ea88a48e56b42bfa3c9b3391baed, type: 2}
   materials:

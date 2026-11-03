@@ -7,6 +7,11 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: Demon_AX_Icon
+    second: {fileID: 2100000, guid: 4031c054bb625894a8cadc981a755cea, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: Demon_Color
     second: {fileID: 2100000, guid: 0a744d186111b7546a9ff642af39961f, type: 2}
   materials:

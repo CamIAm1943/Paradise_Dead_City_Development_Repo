@@ -5,10 +5,6 @@ using System.Collections;
 
 public class Card_UI_Controller : MonoBehaviour
 {
-    // ============================================================
-    // CONSTANTS
-    // ============================================================
-
     private const string Description_Bullet = "• ";
     private const string Default_Name = "---";
     private const string Default_Health = "-/-";
@@ -18,20 +14,20 @@ public class Card_UI_Controller : MonoBehaviour
     private static readonly int Open_Trigger = Animator.StringToHash("Open");
     private static readonly int Close_Trigger = Animator.StringToHash("Close");
 
-
-    // ============================================================
-    // SERIALIZED FIELDS
-    // ============================================================
-
     [Header("Animator")]
     [SerializeField] private Animator Card_Animator;
 
     [Header("References")]
-    [SerializeField] private Battle_Board_Behavior Battle_Board;
+    [SerializeField] private Gameplay_Interaction_Handler InteractionHandler;
+    [SerializeField] private Movement_Execution_Engine MovementEngine;
 
     [Header("Buttons")]
     [SerializeField] private Button Attack_Button;
     [SerializeField] private Button Sprint_Button;
+    [SerializeField] private Button Ability_Button;
+
+    [Header("Status Row")]
+    [SerializeField] private Status_Row_UI Status_Row;
 
     [Header("Text Fields")]
     [SerializeField] private TextMeshProUGUI Name_Text;
@@ -52,53 +48,32 @@ public class Card_UI_Controller : MonoBehaviour
     [SerializeField] private Sprite Default_Model_Icon;
 
     [Header("Transition Settings")]
-    [Tooltip("How long the close animation takes. Card data remains visible for this duration.")]
     [SerializeField] private float Close_Animation_Duration = 0.5f;
-
-    [Tooltip("Extra delay between close and open when transitioning from one model to another.")]
     [SerializeField] private float Card_Transition_Delay = 0.3f;
 
-
-    // ============================================================
-    // STATE
-    // ============================================================
-
     private int Active_Player = 1;
-
     private bool Is_Card_Open = false;
     private Model_Standard_Behavior Current_Displayed_Model;
     private Faction_Data_SO Current_Faction;
     private Coroutine Current_Transition;
-
     private Combat_Manager Combat_Mgr;
-
     private Coroutine Current_Close;
-
-
-    // ============================================================
-    // UNITY LIFECYCLE
-    // ============================================================
+    private Match_Flow_Manager MatchFlow;
+    private Battle_Board_Behavior BoardRef;
 
     private void Awake()
     {
         if (Card_Animator == null)
         {
             Card_Animator = GetComponent<Animator>();
-            if (Card_Animator == null)
-                Card_Animator = GetComponentInChildren<Animator>();
-
-            if (Card_Animator == null)
-                Debug.LogWarning("Card_UI_Controller: No Animator found! Please assign one in the Inspector.");
+            if (Card_Animator == null) Card_Animator = GetComponentInChildren<Animator>();
         }
 
         Combat_Mgr = FindAnyObjectByType<Combat_Manager>();
-        if (Combat_Mgr == null)
-            Debug.LogWarning("Card_UI_Controller: Combat_Manager not found in scene! Attack button won't work.");
-
-        if (Battle_Board == null)
-            Battle_Board = FindAnyObjectByType<Battle_Board_Behavior>();
-        if (Battle_Board == null)
-            Debug.LogWarning("Card_UI_Controller: Battle_Board not found in scene! Sprint button won't work.");
+        MatchFlow = FindAnyObjectByType<Match_Flow_Manager>();
+        BoardRef = FindAnyObjectByType<Battle_Board_Behavior>();
+        if (InteractionHandler == null) InteractionHandler = FindAnyObjectByType<Gameplay_Interaction_Handler>();
+        if (MovementEngine == null) MovementEngine = FindAnyObjectByType<Movement_Execution_Engine>();
     }
 
     private void Start()
@@ -111,49 +86,33 @@ public class Card_UI_Controller : MonoBehaviour
             Card_Animator.ResetTrigger(Close_Trigger);
         }
 
-        if (Attack_Button != null)
-            Attack_Button.onClick.AddListener(On_Attack_Button_Clicked);
-
-        if (Sprint_Button != null)
-            Sprint_Button.onClick.AddListener(On_Sprint_Button_Clicked);
+        if (Attack_Button != null) Attack_Button.onClick.AddListener(On_Attack_Button_Clicked);
+        if (Sprint_Button != null) Sprint_Button.onClick.AddListener(On_Sprint_Button_Clicked);
+        if (Ability_Button != null) Ability_Button.onClick.AddListener(On_Ability_Button_Clicked);
     }
-
-
-    // ============================================================
-    // PUBLIC API
-    // ============================================================
 
     public void Show_Model_Info(Model_Standard_Behavior Model, Faction_Data_SO Faction)
     {
-        if (Model == null || Model.Stats == null)
-        {
-            Debug.LogWarning("Card_UI_Controller: Cannot display null model or model without stats");
-            return;
-        }
+        if (Model == null || Model.Stats == null) return;
 
-        // Cancel any in-progress close; we're about to (re)open the card.
-        if (Current_Close != null)
-        {
-            StopCoroutine(Current_Close);
-            Current_Close = null;
-        }
+        if (Current_Close != null) { StopCoroutine(Current_Close); Current_Close = null; }
+        if (Current_Transition != null) { StopCoroutine(Current_Transition); Current_Transition = null; }
 
+        // If it's the exact same model and the card is open, just update silently
         if (Is_Card_Open && Current_Displayed_Model == Model)
         {
-            // Already showing this model - just refresh data/buttons without animation.
-            Refresh_Card_For_Model(Model);
+            Populate_Card_Data(Model, Faction);
             return;
         }
 
+        // If the card is open but it's a DIFFERENT model, play the transition
         if (Is_Card_Open && Current_Displayed_Model != Model)
         {
-            if (Current_Transition != null)
-                StopCoroutine(Current_Transition);
-
             Current_Transition = StartCoroutine(Transition_To_New_Model(Model, Faction));
             return;
         }
 
+        // If the card is closed, just open it with the new model
         Current_Faction = Faction;
         Current_Displayed_Model = Model;
         Populate_Card_Data(Model, Faction);
@@ -162,40 +121,25 @@ public class Card_UI_Controller : MonoBehaviour
 
     public void Hide_Model_Info()
     {
-        if (!Is_Card_Open)
-            return;
-
-        if (Current_Transition != null)
-        {
-            StopCoroutine(Current_Transition);
-            Current_Transition = null;
-        }
-
-        if (Current_Close != null)
-            StopCoroutine(Current_Close);
-
+        if (!Is_Card_Open) return;
+        if (Current_Transition != null) { StopCoroutine(Current_Transition); Current_Transition = null; }
+        if (Current_Close != null) StopCoroutine(Current_Close);
         Current_Close = StartCoroutine(Close_Card_Sequence());
     }
 
     public void Set_Active_Player(int Player)
     {
         Active_Player = Player;
-        Update_Attack_Button_State();
+        Update_Button_States();
     }
 
-
-    // ============================================================
-    // TRANSITIONS
-    // ============================================================
+    public Model_Standard_Behavior Get_Displayed_Model() => Current_Displayed_Model;
 
     private IEnumerator Close_Card_Sequence()
     {
         Trigger_Close();
         Is_Card_Open = false;
-
-        // Data stays visible during the close animation
         yield return new WaitForSeconds(Close_Animation_Duration);
-
         Clear_Card();
         Current_Displayed_Model = null;
     }
@@ -204,72 +148,47 @@ public class Card_UI_Controller : MonoBehaviour
     {
         Trigger_Close();
         Is_Card_Open = false;
-
         yield return new WaitForSeconds(Close_Animation_Duration + Card_Transition_Delay);
-
         Current_Displayed_Model = New_Model;
         Populate_Card_Data(New_Model, New_Faction);
-
         Trigger_Open();
         Is_Card_Open = true;
-
         Current_Transition = null;
     }
 
     private void Trigger_Open()
     {
-        if (Card_Animator != null)
-        {
-            Card_Animator.ResetTrigger(Close_Trigger);
-            Card_Animator.SetTrigger(Open_Trigger);
-        }
-        else
-        {
-            Debug.LogWarning("Card_UI_Controller: Cannot play Open animation - Animator is missing!");
-        }
-
+        if (Card_Animator != null) { Card_Animator.ResetTrigger(Close_Trigger); Card_Animator.SetTrigger(Open_Trigger); }
         Is_Card_Open = true;
     }
 
-    /// <summary>
-    /// Forces a full re-population of the card for the given model, even if
-    /// it's already the displayed model. Use after state changes (movement,
-    /// damage) that should update button interactability.
-    /// </summary>
     public void Refresh_Card_For_Model(Model_Standard_Behavior Model)
     {
-        if (Model == null || Model.Stats == null)
-            return;
+        if (Model == null || Model.Stats == null) return;
+        if (Current_Displayed_Model != Model) return;
 
-        if (Current_Displayed_Model != Model)
+        // If the card is already open, trigger the close-and-open animation
+        if (Is_Card_Open)
+        {
+            if (Current_Transition != null) StopCoroutine(Current_Transition);
+            Current_Transition = StartCoroutine(Transition_To_New_Model(Model, Current_Faction));
             return;
+        }
 
+        // Fallback: If the card isn't open, just update the data silently
         Populate_Card_Data(Model, Current_Faction);
     }
 
     private void Trigger_Close()
     {
-        if (Card_Animator != null)
-        {
-            Card_Animator.ResetTrigger(Open_Trigger);
-            Card_Animator.SetTrigger(Close_Trigger);
-        }
-        else
-        {
-            Debug.LogWarning("Card_UI_Controller: Cannot play Close animation - Animator is missing!");
-        }
+        if (Card_Animator != null) { Card_Animator.ResetTrigger(Open_Trigger); Card_Animator.SetTrigger(Close_Trigger); }
     }
-
-
-    // ============================================================
-    // CARD POPULATION
-    // ============================================================
 
     private void Populate_Card_Data(Model_Standard_Behavior Model, Faction_Data_SO Faction)
     {
         Set_Text(Name_Text, Model.Stats.Model_Name);
         Set_Text(Health_Num, $"{Model.Current_Health}/{Model.Stats.Health}");
-        Set_Text(Movement_Num, Model.Stats.Movement_Range.ToString());
+        Set_Text(Movement_Num, Model.Movement_Remaining_This_Turn.ToString());
         Set_Text(Attack_Num, $"{Model.Stats.Attack_Skill}+");
         Set_Text(Range_Num, Model.Stats.Attack_Range.ToString());
         Set_Text(Damage_Num, Model.Stats.Attack_Damage.ToString());
@@ -277,9 +196,10 @@ public class Card_UI_Controller : MonoBehaviour
         Set_Text(Description_Text, Build_Description(Model.Stats));
 
         Set_Image(Faction_Icon, Faction?.Get_Faction_Icon(), Default_Faction_Icon);
-        Set_Image(Model_Icon, Faction?.Get_Model_Icon(Model.Type), Default_Model_Icon);
+        Set_Image(Model_Icon, Faction?.Get_Art_By_Type(Model.Type)?.Stat_Card_Portrait, Default_Model_Icon);
 
-        Update_Attack_Button_State();
+        if (Status_Row != null) Status_Row.Show_Statuses(Model.Get_Active_Statuses());
+        Update_Button_States();
     }
 
     private void Clear_Card()
@@ -293,121 +213,185 @@ public class Card_UI_Controller : MonoBehaviour
         Set_Text(Damage_Num, Default_Stat);
         Set_Text(Description_Text, Default_Description);
 
-        if (Faction_Icon != null)
-            Faction_Icon.sprite = Default_Faction_Icon;
-        if (Model_Icon != null)
-            Model_Icon.sprite = Default_Model_Icon;
+        if (Faction_Icon != null) Faction_Icon.sprite = Default_Faction_Icon;
+        if (Model_Icon != null) Model_Icon.sprite = Default_Model_Icon;
+        if (Status_Row != null) Status_Row.Clear();
 
-        if (Attack_Button != null)
-            Attack_Button.interactable = false;
-
-        if (Sprint_Button != null)
-            Sprint_Button.interactable = false;
+        if (Attack_Button != null) Attack_Button.gameObject.SetActive(false);
+        if (Sprint_Button != null) Sprint_Button.gameObject.SetActive(false);
+        if (Ability_Button != null) Ability_Button.gameObject.SetActive(false);
     }
-
-
-    // ============================================================
-    // HELPERS
-    // ============================================================
 
     private static string Build_Description(Model_Stats_SO Stats)
     {
         string Description = "";
-
-        if (Stats.Is_Ranged)
-            Description += $"{Description_Bullet}Ranged Attack\n";
-
-        if (Stats.Has_Splash_Damage)
-            Description += $"{Description_Bullet}Splash Damage\n";
-
-        if (Stats.Has_Ability)
-            Description += $"{Description_Bullet}Special Ability\n";
-
-        if (string.IsNullOrEmpty(Description))
-            return "No special abilities";
-
+        if (Stats.Is_Ranged) Description += $"{Description_Bullet}Ranged Attack\n";
+        if (Stats.Has_Splash_Damage) Description += $"{Description_Bullet}Splash Damage\n";
+        if (Stats.Ability_Data != null)
+        {
+            string Kind_Label = Stats.Ability_Data.Kind == Ability_Kind.Active ? "Active" : "Passive";
+            Description += $"{Description_Bullet}{Kind_Label}: {Stats.Ability_Data.Ability_Name}\n";
+        }
+        if (string.IsNullOrEmpty(Description)) return "No special abilities";
         return Description.TrimEnd('\n');
     }
 
-    private static void Set_Text(TextMeshProUGUI Field, string Value)
+    private static void Set_Text(TextMeshProUGUI Field, string Value) { if (Field != null) Field.text = Value; }
+    private static void Set_Image(Image Field, Sprite Primary, Sprite Fallback) { if (Field != null) Field.sprite = Primary != null ? Primary : Fallback; }
+
+    private void Update_Button_States()
     {
-        if (Field != null)
-            Field.text = Value;
+        Model_Standard_Behavior Displayed = Current_Displayed_Model;
+        bool Has_Model = Displayed != null;
+        int currentActivePlayer = MatchFlow != null ? MatchFlow.Active_Player : Active_Player;
+
+        bool Is_Mine = Has_Model && Displayed.Team == currentActivePlayer;
+        bool Is_Active_Model = Has_Model && MatchFlow != null && Displayed == MatchFlow.Active_Model;
+
+        // Buttons only show if it's the active model's turn
+        bool Can_Act = Is_Mine && Is_Active_Model && !Displayed.Has_Attacked_This_Turn && !Displayed.Has_Ended_Turn;
+
+        bool Is_Sprinting = Has_Model && Displayed.Is_Sprinting_This_Turn;
+        bool Locked_To_Movement = Has_Model && Displayed.Has_Status(Status_Type.Death_On_Wheels);
+        bool Is_Datastream = Has_Model && Displayed.Has_Status(Status_Type.Datastream);
+
+        // Hide buttons if it's not the active model
+        if (Attack_Button != null) Attack_Button.gameObject.SetActive(Is_Mine && Is_Active_Model);
+        if (Sprint_Button != null) Sprint_Button.gameObject.SetActive(Is_Mine && Is_Active_Model);
+
+        if (Ability_Button != null)
+        {
+            bool Has_Active_Ability = Is_Mine && Is_Active_Model && Displayed.Stats != null && Displayed.Stats.Get_Ability_Kind() == Ability_Kind.Active;
+            Ability_Button.gameObject.SetActive(Has_Active_Ability);
+        }
+
+        if (Attack_Button != null) Attack_Button.interactable = Can_Act && !Is_Sprinting && !Locked_To_Movement && !Is_Datastream;
+        if (Sprint_Button != null) Sprint_Button.interactable = Can_Act && !Is_Sprinting && !Locked_To_Movement && !Is_Datastream;
+
+        if (Ability_Button != null && Ability_Button.gameObject.activeSelf)
+        {
+            bool Ability_Ready = Displayed.Ability == null || Displayed.Ability_Is_Ready;
+
+            bool Can_Use_Ability = false;
+            if (Ability_Ready && Displayed.Ability != null && BoardRef != null)
+            {
+                Can_Use_Ability = Displayed.Ability.Can_Activate(Displayed, BoardRef);
+            }
+            else if (Ability_Ready && Displayed.Ability == null)
+            {
+                Can_Use_Ability = true;
+            }
+
+            Ability_Button.interactable = Can_Act && !Is_Sprinting && Can_Use_Ability;
+        }
     }
 
-    private static void Set_Image(Image Field, Sprite Primary, Sprite Fallback)
+    public void Refresh_Displayed_Stats(Model_Standard_Behavior Model)
     {
-        if (Field == null)
-            return;
-
-        Field.sprite = Primary != null ? Primary : Fallback;
-    }
-
-    private void Update_Attack_Button_State()
-    {
-        if (Attack_Button == null && Sprint_Button == null)
-            return;
-
-        bool Is_Mine = Current_Displayed_Model != null
-                       && Current_Displayed_Model.Team == Active_Player;
-
-        bool Can_Act = Is_Mine
-                       && !Current_Displayed_Model.Has_Attacked_This_Turn
-                       && !Current_Displayed_Model.Has_Ended_Turn;
-
-        bool Can_Attack = Can_Act && !Current_Displayed_Model.Is_Sprinting_This_Turn;
-        bool Can_Sprint = Can_Act && !Current_Displayed_Model.Is_Sprinting_This_Turn;
-
-        if (Attack_Button != null)
-            Attack_Button.interactable = Can_Attack;
-
-        if (Sprint_Button != null)
-            Sprint_Button.interactable = Can_Sprint;
-
-        string Name = Current_Displayed_Model != null
-            ? Current_Displayed_Model.Stats.Model_Name : "(none)";
-    }
-
-    /// <summary>
-    /// Updates the displayed health for the currently-displayed model
-    /// without triggering an animation. Does nothing if the currently
-    /// displayed model isn't the one passed in.
-    /// </summary>
-    public void Refresh_Displayed_Health(Model_Standard_Behavior Model)
-    {
-        if (Current_Displayed_Model != Model)
-            return;
-
+        if (Current_Displayed_Model != Model) return;
         Set_Text(Health_Num, $"{Model.Current_Health}/{Model.Stats.Health}");
-        Update_Attack_Button_State();
+        Set_Text(Movement_Num, Model.Movement_Remaining_This_Turn.ToString());
+        if (Status_Row != null) Status_Row.Show_Statuses(Model.Get_Active_Statuses());
+        Update_Button_States();
     }
 
-    // ============================================================
-    // BUTTON CALLBACKS
-    // ============================================================
+    public void Silent_Refresh_Card(Model_Standard_Behavior Model)
+    {
+        if (Model == null || Model.Stats == null) return;
+        if (Current_Displayed_Model != Model) return;
+
+        // Updates text and buttons instantly without playing the animation
+        Populate_Card_Data(Model, Current_Faction);
+        Update_Button_States();
+    }
 
     private void On_Attack_Button_Clicked()
     {
-        if (Battle_Board != null)
-            Battle_Board.Notify_UI_Button_Pressed();
-
-        if (Combat_Mgr != null)
-            Combat_Mgr.On_Attack_Button_Pressed();
-        else
-            Debug.LogError("Combat_Manager not found in scene!");
+        if (Combat_Mgr != null) Combat_Mgr.On_Attack_Button_Pressed();
     }
 
     private void On_Sprint_Button_Clicked()
     {
-        if (Battle_Board == null)
+        if (InteractionHandler == null) return;
+        Model_Standard_Behavior Selected = InteractionHandler.Get_Selected_Model();
+        if (Selected == null) return;
+
+        // If they are ALREADY sprinting, try to cancel it
+        if (Selected.Is_Sprinting_This_Turn)
         {
-            Debug.LogError("Card_UI_Controller: Battle_Board reference missing.");
+            if (MovementEngine != null && MovementEngine.Cancel_Sprint(Selected))
+            {
+                if (InteractionHandler.Get_Highlighter() != null)
+                    InteractionHandler.Get_Highlighter().Display_Movement_Range(Selected);
+
+                Silent_Refresh_Card(Selected);
+            }
             return;
         }
 
-        Battle_Board.Notify_UI_Button_Pressed();
+        // If they are NOT sprinting, start it
+        if (MovementEngine != null && MovementEngine.Begin_Sprint(Selected))
+        {
+            if (InteractionHandler.Get_Highlighter() != null)
+                InteractionHandler.Get_Highlighter().Display_Movement_Range(Selected);
 
-        if (Battle_Board.Begin_Sprint())
             Hide_Model_Info();
+        }
+    }
+
+    private void On_Ability_Button_Clicked()
+    {
+        Debug.Log("[Ability Button] Clicked!");
+
+        if (InteractionHandler == null)
+        {
+            Debug.LogError("InteractionHandler is NULL on Card_UI_Controller!");
+            return;
+        }
+
+        var Targeting = FindAnyObjectByType<Ability_Targeting_Controller>();
+        if (Targeting != null && Targeting.Is_Currently_Targeting())
+        {
+            Debug.Log("Already in targeting mode.");
+            return;
+        }
+
+        Model_Standard_Behavior Selected = InteractionHandler.Get_Selected_Model();
+        if (Selected == null)
+        {
+            Debug.LogError("No model is currently selected!");
+            return;
+        }
+
+        // Prevent using abilities while sprinting
+        if (Selected.Is_Sprinting_This_Turn)
+        {
+            Debug.Log("Cannot use ability while sprinting!");
+            return;
+        }
+
+        if (Selected.Ability == null)
+        {
+            Debug.LogError($"Model {Selected.Stats.Model_Name} has no Ability assigned!");
+            return;
+        }
+
+        var board = FindAnyObjectByType<Battle_Board_Behavior>();
+        if (board == null)
+        {
+            Debug.LogError("Could not find Battle_Board_Behavior in the scene!");
+            return;
+        }
+
+        if (Selected.Ability.Can_Activate(Selected, board))
+        {
+            Debug.Log($"[Ability] {Selected.Ability.Ability_Name} is valid. Activating...");
+            Selected.Ability.Activate(Selected, board);
+            if (Current_Displayed_Model == Selected) Silent_Refresh_Card(Selected);
+        }
+        else
+        {
+            Debug.LogWarning($"[Ability] Can_Activate returned FALSE for {Selected.Ability.Ability_Name}. Reason: No targets in range, or the model has already attacked.");
+        }
     }
 }
