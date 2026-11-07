@@ -17,32 +17,13 @@ public class Model_Standard_Behavior : MonoBehaviour
     // ============================================================
 
     public int Team;
+    public int Original_Team = -1; // Used for Souljack
+    public Material Player_1_Mat;
+    public Material Player_2_Mat;
     public int Current_X;
     public int Current_Y;
     public Model_Type Type;
-
-    // ============================================================
-    // ABILITY
-    // ============================================================
-
-    // Assigned at spawn from Stats.Ability_Data. May be null.
-    public Ability_Definition_SO Ability;
-
-    // Turns remaining before the ability can be used again. 0 means
-    // ready. Ticked at the start of the owner's turn.
-    public int Ability_Recharge_Remaining;
-
-    public bool Ability_Is_Ready => Ability_Recharge_Remaining <= 0;
-
-    /// <summary>
-    /// Ticks the recharge counter down by one, floored at zero. Called
-    /// from Battle_Board_Behavior at the start of the owner's turn.
-    /// </summary>
-    public void Tick_Ability_Recharge()
-    {
-        if (Ability_Recharge_Remaining > 0)
-            Ability_Recharge_Remaining--;
-    }
+    public int Initiative_Roll;
 
     // ============================================================
     // STATS
@@ -55,13 +36,18 @@ public class Model_Standard_Behavior : MonoBehaviour
     // ============================================================
 
     public int Current_Health;
+    public int Logic_Maze_Target_X = -1;
+    public int Logic_Maze_Target_Y = -1;
+    public Model_Standard_Behavior Logic_Maze_Target_Model;
     public int Movement_Remaining_This_Turn;
     public bool Has_Attacked_This_Turn;
     public bool Has_Ended_Turn;
     public int Movement_Before_Sprint;
     public bool Is_Sprinting_This_Turn;
     public bool Has_Moved_Since_Sprint;
+    public bool Has_Moved_This_Turn;
     public bool Has_Used_Sprint_Bonus;
+    public bool Datastream_Just_Expired;
 
     // ============================================================
     // STATUSES
@@ -69,7 +55,6 @@ public class Model_Standard_Behavior : MonoBehaviour
 
     private Status_Registry_SO Status_Registry;
     private readonly List<Status_Instance> Active_Statuses = new List<Status_Instance>();
-
     private readonly List<Status_Instance> Display_Statuses = new List<Status_Instance>();
 
     public IReadOnlyList<Status_Instance> Get_Active_Statuses()
@@ -94,11 +79,6 @@ public class Model_Standard_Behavior : MonoBehaviour
         return Display_Statuses;
     }
 
-    /// <summary>
-    /// Called by Battle_Board_Behavior at spawn so the model can look up
-    /// definitions when a status is added. If this is never set, statuses
-    /// still track turns but render with the gray fallback icon.
-    /// </summary>
     public void Set_Status_Registry(Status_Registry_SO Registry)
     {
         Status_Registry = Registry;
@@ -138,11 +118,6 @@ public class Model_Standard_Behavior : MonoBehaviour
         return false;
     }
 
-    /// <summary>
-    /// Decrements every active status by one turn and removes any that
-    /// reach zero. Called by Battle_Board_Behavior at the start of this
-    /// model's owner's turn.
-    /// </summary>
     public void Tick_Statuses()
     {
         for (int i = Active_Statuses.Count - 1; i >= 0; i--)
@@ -160,15 +135,38 @@ public class Model_Standard_Behavior : MonoBehaviour
 
     public bool Is_Vulnerable => Has_Status(Status_Type.Vulnerable);
 
-    /// <summary>
-    /// Adds N turn-units of vulnerability. Sources stack additively on
-    /// duration, not on modifier magnitude (the modifier is always ±1
-    /// per the non-stacking attack rule).
-    /// </summary>
     public void Apply_Vulnerability(int Sources = 1)
     {
         Add_Status(Status_Type.Vulnerable, Sources);
     }
+
+    // ============================================================
+    // ABILITY
+    // ============================================================
+
+    public Ability_Definition_SO Ability;
+    public int Ability_Recharge_Remaining;
+
+    public bool Ability_Is_Ready => Ability_Recharge_Remaining <= 0;
+
+    public void Tick_Ability_Recharge()
+    {
+        if (Ability_Recharge_Remaining > 0)
+            Ability_Recharge_Remaining--;
+    }
+
+    // ============================================================
+    // DEATH ON WHEELS TRACKING
+    // ============================================================
+
+    /// <summary>
+    /// Victims already hit by this model's Death on Wheels activation.
+    /// Cleared when Death on Wheels is applied, so each activation starts
+    /// with a clean slate. Prevents chained pushes from double-damaging
+    /// the same model within a single turn.
+    /// </summary>
+    public readonly HashSet<Model_Standard_Behavior> DOW_Damaged_This_Activation
+        = new HashSet<Model_Standard_Behavior>();
 
     // ============================================================
     // SMOOTH MOTION
@@ -262,5 +260,49 @@ public class Model_Standard_Behavior : MonoBehaviour
 
         if (Ease_Discrete_Moves_Override.HasValue)
             Ease_Discrete_Moves = Ease_Discrete_Moves_Override.Value;
+    }
+
+    public bool Is_Mid_Sprint()
+    {
+        if (!Is_Sprinting_This_Turn) return false;
+
+        // If they haven't moved at all, they are technically mid-sprint
+        if (!Has_Moved_Since_Sprint) return true;
+
+        // If they HAVE moved, they are only mid-sprint if they still have sprint bonus left
+        int Sprint_Total = Mathf.Min(Movement_Before_Sprint + Stats.Sprint_Bonus, Stats.Get_Sprint_Range());
+        int Spent_Since_Sprint = Sprint_Total - Movement_Remaining_This_Turn;
+
+        return Spent_Since_Sprint <= Movement_Before_Sprint;
+    }
+
+    // ============================================================
+    // TEAM COLOR
+    // ============================================================
+    public void Update_Team_Color()
+    {
+        Material NewMat = Team == 1 ? Player_1_Mat : Player_2_Mat;
+        if (NewMat == null) return;
+
+        Renderer[] Renderers = GetComponentsInChildren<Renderer>();
+        foreach (Renderer R in Renderers)
+        {
+            Material[] Materials = R.materials;
+            if (Materials.Length >= 2)
+            {
+                for (int i = 0; i < Materials.Length; i++)
+                {
+                    if (Materials[i] != null && Materials[i].name.Contains("Base"))
+                    {
+                        Materials[i] = new Material(NewMat);
+                    }
+                }
+                R.materials = Materials;
+            }
+            else if (Materials.Length == 1)
+            {
+                R.material = NewMat;
+            }
+        }
     }
 }

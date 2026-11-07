@@ -100,8 +100,13 @@ public abstract class Ability_Definition_SO : ScriptableObject
     /// Applied in Show_Attack_Range. Melee is unaffected because melee
     /// already hardcodes adjacency.
     /// </summary>
-    public virtual int Get_Flat_Attack_Range_Bonus(
-        Model_Standard_Behavior Attacker,
-        Battle_Board_Behavior Board)
+    public virtual int Get_Flat_Attack_Range_Bonus(Model_Standard_Behavior Attacker, Battle_Board_Behavior Board)
         => 0;
+
+    /// <summary>
+    /// Called after an attack successfully hits, but before damage is dealt.
+    /// Passives that trigger on hit (like applying poison) override this.
+    /// </summary>
+    public virtual void On_Attack_Hit(Model_Standard_Behavior Attacker, Model_Standard_Behavior Defender, Battle_Board_Behavior Board)
+    { }
 }

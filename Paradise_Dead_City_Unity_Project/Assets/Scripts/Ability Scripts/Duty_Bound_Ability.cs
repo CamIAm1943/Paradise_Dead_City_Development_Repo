@@ -18,6 +18,8 @@ public class Duty_Bound_Ability : Ability_Definition_SO
         if (Model == null || Board == null) return false;
         if (Model.Ability_Recharge_Remaining > 0) return false;
         if (Model.Has_Status(Status_Type.Duty_Bound)) return false;
+        if (Model.Has_Moved_This_Turn) return false;
+
         return true;
     }
 
@@ -34,16 +36,12 @@ public class Duty_Bound_Ability : Ability_Definition_SO
                   $"cannot move this turn.");
     }
 
-    public override int Get_Flat_Attack_Skill_Bonus(
-        Model_Standard_Behavior Attacker,
-        Battle_Board_Behavior Board)
+    public override int Get_Flat_Attack_Skill_Bonus(Model_Standard_Behavior Attacker, Battle_Board_Behavior Board)
     {
         return Attacker.Has_Status(Status_Type.Duty_Bound) ? Attack_Skill_Bonus : 0;
     }
 
-    public override int Get_Flat_Attack_Range_Bonus(
-        Model_Standard_Behavior Attacker,
-        Battle_Board_Behavior Board)
+    public override int Get_Flat_Attack_Range_Bonus(Model_Standard_Behavior Attacker, Battle_Board_Behavior Board)
     {
         return Attacker.Has_Status(Status_Type.Duty_Bound) ? Attack_Range_Bonus : 0;
     }

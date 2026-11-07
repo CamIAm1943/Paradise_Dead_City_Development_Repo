@@ -8,5 +8,10 @@ public enum Status_Type
     Rot,
     Duty_Bound,
     Death_On_Wheels,
+    Kinshiru,
+    Crypt_Blade,
+    Logic_Maze,
+    Datastream,
+    Souljacked,
     Passive_Ability
 }

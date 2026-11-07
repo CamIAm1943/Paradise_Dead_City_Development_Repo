@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b9274a9d995364d9f74b5bb7ac11de, type: 3}
+  m_Name: Test_Map
+  m_EditorClassIdentifier: Assembly-CSharp::Map_Data_SO
+  Map_Name: Map 2
+  Rows:
+  - Tiles: 0000000000000000000000000200000000000000020000000000000000000000
+    Elevated: 0000000000000000
+  - Tiles: 0000000000000000000000000000000000000000000000000000000000000000
+    Elevated: 0000000000000000
